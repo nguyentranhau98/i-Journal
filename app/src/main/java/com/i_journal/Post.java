@@ -1,5 +1,8 @@
 package com.i_journal;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
+@IgnoreExtraProperties
 public class Post {
     String key;
     String title;

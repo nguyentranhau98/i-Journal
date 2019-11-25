@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setupFirebase();
         loadFragment(new EntryFragment());
         BottomNavigationView navigation = findViewById(R.id.nav_bar);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -61,12 +64,10 @@ public class MainActivity extends AppCompatActivity {
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        // [START initialize_auth]
-        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
         lv_post = findViewById(R.id.lv_post);
-        setupFirebase();
+
 //        readPost();
 //        setupItemEvent();
 
@@ -106,9 +107,25 @@ public class MainActivity extends AppCompatActivity {
         if (currentFirebaseUser != null) {
             String email = currentFirebaseUser.getEmail();
             System.out.println("EMAIL:  " + email);
+//            firebaseHelper.readPost(email);
+
+            firebaseHelper.mDatabase.child(currentFirebaseUser.getUid()).child(System.currentTimeMillis()+"").setValue(new Post("nice day","asdasd",System.currentTimeMillis(),5));
+
         } else {
             System.out.println("Do not get current Firebase user");
         }
+    }
+
+    public void setupItemEvent(){
+        lv_post.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final Post post = (Post)mPost.get(i);
+//                Intent intent = new Intent(WallActivity.this, HomeActivity.class);
+//                intent.putExtra("KEY",post.getKey());
+//                startActivity(intent);
+            }
+        });
     }
 
     private void loadFragment(Fragment fragment) {
