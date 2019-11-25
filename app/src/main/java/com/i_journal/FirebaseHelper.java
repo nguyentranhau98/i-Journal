@@ -1,6 +1,7 @@
 package com.i_journal;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -35,8 +36,8 @@ public class FirebaseHelper {
         this.mDatabase = mDatabase;
     }
 
-    public ArrayList<Post> readPost(){
-        Query myPosts = mDatabase.child("post").orderByChild("time");
+    public ArrayList<Post> readPost(String uid) {
+        Query myPosts = mDatabase.child(uid).orderByChild("time");
         myPosts.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -51,9 +52,9 @@ public class FirebaseHelper {
         return alPost;
     }
 
-    public void readSinglePost(final String key,final OnGetDataListener listener){
+    public void readSinglePost(String uid, final String key, final OnGetDataListener listener) {
         listener.onStart();
-        Query myPosts2 = mDatabase.child("post");
+        Query myPosts2 = mDatabase.child(uid);
         myPosts2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -77,70 +78,76 @@ public class FirebaseHelper {
             }
         });
     }
+
     private void fetchData(DataSnapshot dataSnapshot) {
         alPost.clear();
         for (DataSnapshot ds : dataSnapshot.getChildren()) {
             System.out.println("*********POST*******");
             Post post = ds.getValue(Post.class);
             post.setKey(ds.getKey());
-            System.out.println("KEY: "+post.getKey());
-            System.out.println("TITLE: "+post.getTitle());
-            System.out.println("CONTENT: "+post.getContent());
+            System.out.println("KEY: " + post.getKey());
+            System.out.println("TITLE: " + post.getTitle());
+            System.out.println("CONTENT: " + post.getContent());
 
             SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             String date = sfd.format(new Date(post.getTime()));
             System.out.println(date);
             alPost.add(post);
         }
-        adapter = new PostAdapter(c,R.layout.post_list_item,alPost);
+        adapter = new PostAdapter(c, R.layout.post_list_item, alPost);
+        Log.d("LIST", "fetchData: " +lv_post);
         lv_post.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        System.out.println("SIZEEEEE 1 "+alPost.size());
+        System.out.println("SIZEEEEE 1 " + alPost.size());
     }
 
-    public String writePost(Post post, long timestamp) {
+    public String writePost(String uid, Post post, long timestamp) {
         try {
             HashMap<String, Object> message = new HashMap<>();
             message.put("title", post.getTitle());
             message.put("content", post.getContent());
             message.put("time", timestamp);
-            String key = mDatabase.child("post").push().getKey();
-            mDatabase.child("post").child(key).setValue(message);
+            String key = mDatabase.child(uid).push().getKey();
+            mDatabase.child(uid).child(key).setValue(message);
             return key;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
 
     }
-    public boolean updatePost(Post post,long timestamp){
+
+    public boolean updatePost(String uid, Post post, long timestamp) {
         try {
             HashMap<String, Object> message = new HashMap<>();
             message.put("title", post.getTitle());
             message.put("content", post.getContent());
             message.put("time", timestamp);
 
-            mDatabase.child("post").child(post.getKey()).setValue(message);
+            mDatabase.child(uid).child(post.getKey()).setValue(message);
 
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public boolean deletePost(String key){
+    public boolean deletePost(String uid, String key) {
         try {
-            mDatabase.child("post").child(key).removeValue();
+            mDatabase.child(uid).child(key).removeValue();
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+
     public interface OnGetDataListener {
         public void onStart();
+
         public void onSuccess(Post post);
+
         public void onFailed(DatabaseError databaseError);
     }
 }

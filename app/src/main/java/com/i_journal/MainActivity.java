@@ -2,6 +2,7 @@ package com.i_journal;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
@@ -43,9 +44,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        loadFragment(new EntryFragment());
+
+        EntryFragment entryFragment = new EntryFragment();
+        loadFragment(entryFragment);
+
         BottomNavigationView navigation = findViewById(R.id.nav_bar);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        Log.d("FRAG", "onCreate: "+ entryFragment.getLv_post());
+        lv_post = entryFragment.getLv_post();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -64,9 +71,8 @@ public class MainActivity extends AppCompatActivity {
         // [START initialize_auth]
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-
-        lv_post = findViewById(R.id.lv_post);
         setupFirebase();
+
 //        readPost();
 //        setupItemEvent();
 
@@ -101,11 +107,12 @@ public class MainActivity extends AppCompatActivity {
     private void setupFirebase() {
         FirebaseApp.initializeApp(this);
         //mDatabase = FirebaseDatabase.getInstance().getReference();
-        firebaseHelper = new FirebaseHelper(FirebaseDatabase.getInstance().getReference());
+        firebaseHelper = new FirebaseHelper(FirebaseDatabase.getInstance().getReference(), this.lv_post, this.getBaseContext());
         currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentFirebaseUser != null) {
             String email = currentFirebaseUser.getEmail();
             System.out.println("EMAIL:  " + email);
+            firebaseHelper.readPost(currentFirebaseUser.getUid());
         } else {
             System.out.println("Do not get current Firebase user");
         }
