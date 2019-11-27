@@ -2,6 +2,7 @@ package com.i_journal;
 
 import android.content.Context;
 import android.media.Image;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

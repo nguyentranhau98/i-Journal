@@ -21,6 +21,14 @@ public class Post implements Serializable {
         this.rating = rating;
     }
 
+    public Post(String key, String title, String content, Long time, int rating) {
+        this.key = key;
+        this.title = title;
+        this.content = content;
+        this.time = time;
+        this.rating = rating;
+    }
+
     public String getTitle() {
         return title;
     }

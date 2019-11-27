@@ -32,7 +32,6 @@ public class FirebaseHelper {
     }
 
     public ArrayList<Post> readPost(String key) {
-        Log.d("Ref", "readPost: " + mDatabase.getDatabase().getReference().toString());
         Query myPosts = mDatabase.child(key).orderByChild("time");
         myPosts.addValueEventListener(new ValueEventListener() {
             @Override
@@ -51,16 +50,10 @@ public class FirebaseHelper {
     private void fetchData(DataSnapshot dataSnapshot) {
         alPost.clear();
         for (DataSnapshot ds : dataSnapshot.getChildren()) {
-            System.out.println("*********POST*******");
             Post post = ds.getValue(Post.class);
             post.setKey(ds.getKey());
-            System.out.println("KEY: " + post.getKey());
-            System.out.println("TITLE: " + post.getTitle());
-            System.out.println("CONTENT: " + post.getContent());
-
             SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             String date = sfd.format(new Date(post.getTime()));
-            System.out.println(date);
             alPost.add(post);
         }
         valueEventListener.onPostsChange(alPost);
@@ -76,10 +69,8 @@ public class FirebaseHelper {
                     if (ds.getKey().equals(key)) {
                         single_Post = ds.getValue(Post.class);
                         single_Post.setKey(ds.getKey());
-
                         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                         String date = sfd.format(new Date(single_Post.getTime()));
-                        System.out.println("***onSuccess*** from Firebase Helper");
                         listener.onSuccess(single_Post);
                         return;
                     }
@@ -112,15 +103,14 @@ public class FirebaseHelper {
 
     }
 
-    public boolean updatePost(String uid, Post post, long timestamp) {
+    public boolean updatePost(String uid, Post post) {
         try {
             HashMap<String, Object> message = new HashMap<>();
             message.put("title", post.getTitle());
             message.put("content", post.getContent());
-            message.put("time", timestamp);
-
+            message.put("time", post.getTime());
+            message.put("rating",post.getRating());
             mDatabase.child(uid).child(post.getKey()).setValue(message);
-
             return true;
         } catch (Exception e) {
             e.printStackTrace();

@@ -38,7 +38,6 @@ public class EntryFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_entry, container, false);
         setLv_post((ListView) view.findViewById(R.id.lv_post));
-        Log.d("EntryLVPOST", "onCreateView: "+lv_post);
         return view;
     }
 
