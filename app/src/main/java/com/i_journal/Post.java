@@ -1,6 +1,11 @@
 package com.i_journal;
 
-public class Post {
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.io.Serializable;
+
+@IgnoreExtraProperties
+public class Post implements Serializable {
     String key;
     String title;
     String content;
@@ -10,6 +15,14 @@ public class Post {
     public Post(){}
 
     public Post(String title, String content, Long time, int rating) {
+        this.title = title;
+        this.content = content;
+        this.time = time;
+        this.rating = rating;
+    }
+
+    public Post(String key, String title, String content, Long time, int rating) {
+        this.key = key;
         this.title = title;
         this.content = content;
         this.time = time;

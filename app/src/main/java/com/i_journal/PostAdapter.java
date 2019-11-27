@@ -1,6 +1,8 @@
 package com.i_journal;
 
 import android.content.Context;
+import android.media.Image;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.card.MaterialCardView;
 
@@ -30,17 +34,17 @@ public class PostAdapter extends BaseAdapter {
 
         @Override
     public int getCount() {
-        return 0;
+        return list.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return list.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return list.get(position).getTime();
     }
 
     @Override
@@ -65,28 +69,7 @@ public class PostAdapter extends BaseAdapter {
         String date2 = sfd2.format(new Date());
 
         int id;
-        switch (post.getRating()) {
-            case 1 :
-                id = context.getResources().getIdentifier("com.i_journal:drawable/" + "weary.png", null, null);
-                mood.setImageResource(id);
-                break;
-            case 2 :
-                id = context.getResources().getIdentifier("com.i_journal:drawable/" + "disappointed.png", null, null);
-                mood.setImageResource(id);
-                break;
-            case 3 :
-                id = context.getResources().getIdentifier("com.i_journal:drawable/" + "expressionless.png", null, null);
-                mood.setImageResource(id);
-                break;
-            case 4 :
-                id = context.getResources().getIdentifier("com.i_journal:drawable/" + "slightlysmiling.png", null, null);
-                mood.setImageResource(id);
-                break;
-            case 5 :
-                id = context.getResources().getIdentifier("com.i_journal:drawable/" + "smiling.png", null, null);
-                mood.setImageResource(id);
-                break;
-        }
+        setExpression(post.getRating(), mood);
         try {
             Date pastDay = sfd2.parse(date1);
             Date currentDay = sfd2.parse(date2);
@@ -104,5 +87,25 @@ public class PostAdapter extends BaseAdapter {
 
         Toast.makeText(context,"Call getView from Post Adapter "+position,Toast.LENGTH_SHORT).show();
         return view;
+    }
+    void setExpression(int id, ImageView mood) {
+        switch (id) {
+            case 1 :
+                mood.setImageResource(R.drawable.weary);
+                break;
+            case 2 :
+                mood.setImageResource(R.drawable.disappointed);
+                break;
+            case 3 :
+                mood.setImageResource(R.drawable.expressionless);
+                break;
+            case 4 :
+                mood.setImageResource(R.drawable.slightlysmiling);
+                break;
+            case 5 :
+                mood.setImageResource(R.drawable.smiling);
+                break;
+        }
+
     }
 }

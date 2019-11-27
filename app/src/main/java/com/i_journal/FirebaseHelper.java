@@ -1,7 +1,6 @@
 package com.i_journal;
 
-import android.content.Context;
-import android.widget.ListView;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -16,27 +15,24 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import static com.i_journal.MainActivity.adapter;
 
 public class FirebaseHelper {
     DatabaseReference mDatabase;
-    ListView lv_post;
-    Context c;
     static ArrayList<Post> alPost = new ArrayList<>();
     static Post single_Post;
+    FirebaseHelperListener valueEventListener;
 
-    public FirebaseHelper(DatabaseReference mDatabase, ListView lv_post, Context c) {
+    public FirebaseHelper(DatabaseReference mDatabase, FirebaseHelperListener valueEventListener) {
         this.mDatabase = mDatabase;
-        this.lv_post = lv_post;
-        this.c = c;
+        this.valueEventListener = valueEventListener;
     }
 
     public FirebaseHelper(DatabaseReference mDatabase) {
         this.mDatabase = mDatabase;
     }
 
-    public ArrayList<Post> readPost(){
-        Query myPosts = mDatabase.child("post").orderByChild("time");
+    public ArrayList<Post> readPost(String key) {
+        Query myPosts = mDatabase.child(key).orderByChild("time");
         myPosts.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -51,9 +47,21 @@ public class FirebaseHelper {
         return alPost;
     }
 
-    public void readSinglePost(final String key,final OnGetDataListener listener){
+    private void fetchData(DataSnapshot dataSnapshot) {
+        alPost.clear();
+        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+            Post post = ds.getValue(Post.class);
+            post.setKey(ds.getKey());
+            SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            String date = sfd.format(new Date(post.getTime()));
+            alPost.add(post);
+        }
+        valueEventListener.onPostsChange(alPost);
+    }
+
+    public void readSinglePost(String uid, final String key, final OnGetDataListener listener) {
         listener.onStart();
-        Query myPosts2 = mDatabase.child("post");
+        Query myPosts2 = mDatabase.child(uid);
         myPosts2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -61,10 +69,8 @@ public class FirebaseHelper {
                     if (ds.getKey().equals(key)) {
                         single_Post = ds.getValue(Post.class);
                         single_Post.setKey(ds.getKey());
-
                         SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                         String date = sfd.format(new Date(single_Post.getTime()));
-                        System.out.println("***onSuccess*** from Firebase Helper");
                         listener.onSuccess(single_Post);
                         return;
                     }
@@ -77,70 +83,56 @@ public class FirebaseHelper {
             }
         });
     }
-    private void fetchData(DataSnapshot dataSnapshot) {
-        alPost.clear();
-        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-            System.out.println("*********POST*******");
-            Post post = ds.getValue(Post.class);
-            post.setKey(ds.getKey());
-            System.out.println("KEY: "+post.getKey());
-            System.out.println("TITLE: "+post.getTitle());
-            System.out.println("CONTENT: "+post.getContent());
 
-            SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-            String date = sfd.format(new Date(post.getTime()));
-            System.out.println(date);
-            alPost.add(post);
-        }
-        adapter = new PostAdapter(c,R.layout.post_list_item,alPost);
-        lv_post.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-        System.out.println("SIZEEEEE 1 "+alPost.size());
-    }
 
-    public String writePost(Post post, long timestamp) {
+
+    public String writePost(String uid, Post post) {
         try {
             HashMap<String, Object> message = new HashMap<>();
             message.put("title", post.getTitle());
             message.put("content", post.getContent());
-            message.put("time", timestamp);
-            String key = mDatabase.child("post").push().getKey();
-            mDatabase.child("post").child(key).setValue(message);
+            message.put("time", post.getTime());
+            message.put("rating",post.getRating());
+            String key = mDatabase.child(uid).push().getKey();
+            mDatabase.child(uid).child(key).setValue(message);
             return key;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
 
     }
-    public boolean updatePost(Post post,long timestamp){
+
+    public boolean updatePost(String uid, Post post) {
         try {
             HashMap<String, Object> message = new HashMap<>();
             message.put("title", post.getTitle());
             message.put("content", post.getContent());
-            message.put("time", timestamp);
-
-            mDatabase.child("post").child(post.getKey()).setValue(message);
-
+            message.put("time", post.getTime());
+            message.put("rating",post.getRating());
+            mDatabase.child(uid).child(post.getKey()).setValue(message);
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public boolean deletePost(String key){
+    public boolean deletePost(String uid, String key) {
         try {
-            mDatabase.child("post").child(key).removeValue();
+            mDatabase.child(uid).child(key).removeValue();
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+
     public interface OnGetDataListener {
         public void onStart();
+
         public void onSuccess(Post post);
+
         public void onFailed(DatabaseError databaseError);
     }
 }

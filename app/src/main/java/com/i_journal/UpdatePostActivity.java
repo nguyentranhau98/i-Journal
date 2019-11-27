@@ -1,5 +1,6 @@
 package com.i_journal;
 
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -14,16 +15,18 @@ import android.widget.Toast;
 
 import java.util.Date;
 
-public class AddPostActivity extends AppCompatActivity implements View.OnClickListener {
+public class UpdatePostActivity extends AppCompatActivity implements View.OnClickListener {
     EditText edt_title, edt_content;
     ImageView img_weary, img_disappointed, img_expressionless, img_slightlysmiling, img_smiling;
     Button btn_ok, btn_cancel;
     static int chosenId = 0;
-
+    Post oldPost;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_post);
+
+        oldPost = (Post) getIntent().getSerializableExtra("UPDATEPOST");
 
         edt_title = findViewById(R.id.edt_title);
         edt_content = findViewById(R.id.edt_content);
@@ -42,6 +45,9 @@ public class AddPostActivity extends AppCompatActivity implements View.OnClickLi
         img_smiling.setOnClickListener(this);
         btn_ok.setOnClickListener(this);
         btn_cancel.setOnClickListener(this);
+
+        setSelectedData(oldPost);
+
     }
 
     @Override
@@ -68,15 +74,13 @@ public class AddPostActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             }
             case R.id.btn_ok: {
-
                 if (chosenId == 0 || edt_title.getText().toString().trim().equals("") || edt_content.getText().toString().trim().equals("")) {
                     Toast.makeText(getBaseContext(), "Please choose the expression face, fill all the title and content", Toast.LENGTH_SHORT).show();
                 } else {
                     String title = edt_title.getText().toString().trim();
                     String content = edt_content.getText().toString().trim();
-                    long time = System.currentTimeMillis();
                     int rating = getRating(chosenId);
-                    Post newPost = new Post(title, content, time, rating);
+                    Post newPost = new Post(oldPost.getKey(), title, content, oldPost.getTime(), rating);
                     Intent intent = new Intent();
                     Bundle bundle = new Bundle();
                     bundle.putSerializable("NEWPOST", newPost);
@@ -136,5 +140,32 @@ public class AddPostActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
         return 1;
+    }
+
+    void setSelectedData(Post post) {
+        edt_title.setText(post.getTitle());
+        edt_content.setText(post.getContent());
+        switch (post.getRating()) {
+            case 1: {
+                handleImageClick(R.id.img_weary);
+                break;
+            }
+            case 2: {
+                handleImageClick(R.id.img_disappointed);
+                break;
+            }
+            case 3: {
+                handleImageClick(R.id.img_expressionless);
+                break;
+            }
+            case 4: {
+                handleImageClick(R.id.img_slightlysmiling);
+                break;
+            }
+            case 5: {
+                handleImageClick(R.id.img_smiling);
+                break;
+            }
+        }
     }
 }
