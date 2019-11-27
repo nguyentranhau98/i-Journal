@@ -1,8 +1,6 @@
 package com.i_journal;
 
-import android.content.Context;
 import android.util.Log;
-import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 
@@ -17,19 +15,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import static com.i_journal.MainActivity.adapter;
 
 public class FirebaseHelper {
     DatabaseReference mDatabase;
-    ListView lv_post;
-    Context c;
     static ArrayList<Post> alPost = new ArrayList<>();
     static Post single_Post;
+    FirebaseHelperListener valueEventListener;
 
-    public FirebaseHelper(DatabaseReference mDatabase, ListView lv_post, Context c) {
+    public FirebaseHelper(DatabaseReference mDatabase, FirebaseHelperListener valueEventListener) {
         this.mDatabase = mDatabase;
-        this.lv_post = lv_post;
-        this.c = c;
+        this.valueEventListener = valueEventListener;
     }
 
     public FirebaseHelper(DatabaseReference mDatabase) {
@@ -51,6 +46,24 @@ public class FirebaseHelper {
             }
         });
         return alPost;
+    }
+
+    private void fetchData(DataSnapshot dataSnapshot) {
+        alPost.clear();
+        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+            System.out.println("*********POST*******");
+            Post post = ds.getValue(Post.class);
+            post.setKey(ds.getKey());
+            System.out.println("KEY: " + post.getKey());
+            System.out.println("TITLE: " + post.getTitle());
+            System.out.println("CONTENT: " + post.getContent());
+
+            SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            String date = sfd.format(new Date(post.getTime()));
+            System.out.println(date);
+            alPost.add(post);
+        }
+        valueEventListener.onPostsChange(alPost);
     }
 
     public void readSinglePost(String uid, final String key, final OnGetDataListener listener) {
@@ -80,27 +93,7 @@ public class FirebaseHelper {
         });
     }
 
-    private void fetchData(DataSnapshot dataSnapshot) {
-        alPost.clear();
-        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-            System.out.println("*********POST*******");
-            Post post = ds.getValue(Post.class);
-            post.setKey(ds.getKey());
-            System.out.println("KEY: " + post.getKey());
-            System.out.println("TITLE: " + post.getTitle());
-            System.out.println("CONTENT: " + post.getContent());
 
-            SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-            String date = sfd.format(new Date(post.getTime()));
-            System.out.println(date);
-            alPost.add(post);
-        }
-        adapter = new PostAdapter(c, R.layout.post_list_item, alPost);
-        Log.d("LIST", "fetchData: " +lv_post);
-        lv_post.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-        System.out.println("SIZEEEEE 1 " + alPost.size());
-    }
 
     public String writePost(String uid, Post post, long timestamp) {
         try {

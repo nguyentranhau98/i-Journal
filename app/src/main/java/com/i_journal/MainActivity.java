@@ -22,38 +22,43 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.annotations.PublicApi;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FirebaseHelperListener {
+
 
     private DatabaseReference mDatabase;
     FirebaseUser currentFirebaseUser;
     FirebaseHelper firebaseHelper;
 
     ListView lv_post;
-    static ArrayList<Post> mPost = new ArrayList<>();
+    static ArrayList<Post> alPost = new ArrayList<>();
     static PostAdapter adapter;
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
+    private EntryFragment entryFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        EntryFragment entryFragment = new EntryFragment();
+        entryFragment = new EntryFragment();
         loadFragment(entryFragment);
-
         BottomNavigationView navigation = findViewById(R.id.nav_bar);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        Log.d("FRAG", "onCreate: "+ entryFragment.getLv_post());
-        lv_post = entryFragment.getLv_post();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -70,11 +75,17 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mAuth = FirebaseAuth.getInstance();
-        setupFirebase();
 
-//        readPost();
 //        setupItemEvent();
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("FRAG", "onCreate: "+ entryFragment.getLv_post());
+        lv_post = entryFragment.getLv_post();
+        setupFirebase();
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -106,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupFirebase() {
         FirebaseApp.initializeApp(this);
         //mDatabase = FirebaseDatabase.getInstance().getReference();
-        firebaseHelper = new FirebaseHelper(FirebaseDatabase.getInstance().getReference(), this.lv_post, this.getBaseContext());
+        firebaseHelper = new FirebaseHelper(FirebaseDatabase.getInstance().getReference(), this);
         currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentFirebaseUser != null) {
             String email = currentFirebaseUser.getEmail();
@@ -121,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         lv_post.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final Post post = (Post)mPost.get(i);
+                final Post post = (Post)alPost.get(i);
 //                Intent intent = new Intent(WallActivity.this, HomeActivity.class);
 //                intent.putExtra("KEY",post.getKey());
 //                startActivity(intent);
@@ -151,4 +162,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
     }
+
+    @Override
+    public void onPostsChange(List<Post> alPost) {
+        adapter = new PostAdapter(getBaseContext(), R.layout.post_list_item, alPost);
+        Log.d("LIST", "fetchData: " +lv_post);
+        lv_post.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        System.out.println("SIZEEEEE 1 " + alPost.size());
+    }
+}
+
+interface FirebaseHelperListener {
+    void onPostsChange(List<Post> alPost);
+
 }
