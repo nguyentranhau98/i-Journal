@@ -95,12 +95,13 @@ public class FirebaseHelper {
 
 
 
-    public String writePost(String uid, Post post, long timestamp) {
+    public String writePost(String uid, Post post) {
         try {
             HashMap<String, Object> message = new HashMap<>();
             message.put("title", post.getTitle());
             message.put("content", post.getContent());
-            message.put("time", timestamp);
+            message.put("time", post.getTime());
+            message.put("rating",post.getRating());
             String key = mDatabase.child(uid).push().getKey();
             mDatabase.child(uid).child(key).setValue(message);
             return key;

@@ -2,8 +2,10 @@ package com.i_journal;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.io.Serializable;
+
 @IgnoreExtraProperties
-public class Post {
+public class Post implements Serializable {
     String key;
     String title;
     String content;

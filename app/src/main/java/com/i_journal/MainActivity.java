@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -38,7 +39,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements FirebaseHelperListener {
 
-
+    static final int ADD_POST_REQUEST = 1;
     private DatabaseReference mDatabase;
     FirebaseUser currentFirebaseUser;
     FirebaseHelper firebaseHelper;
@@ -64,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(getBaseContext(), AddPostActivity.class);
+                startActivityForResult(intent, ADD_POST_REQUEST);
             }
         });
 
@@ -88,6 +89,19 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
         setupFirebase();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        if (requestCode == ADD_POST_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Bundle bundle = intent.getExtras();
+                Post newPost = (Post) bundle.getSerializable("NEWPOST");
+                Log.d("newpost", "onActivityResult: "+newPost);
+                firebaseHelper.writePost(currentFirebaseUser.getUid(), newPost);
+            }
+        }
+    }
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
@@ -97,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
                 case R.id.entry:
                     fragment = new EntryFragment();
                     loadFragment(fragment);
+                    onPostsChange(alPost);
                     return true;
                 case R.id.stats:
                     fragment = new StatsFragment();
@@ -175,5 +190,4 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
 
 interface FirebaseHelperListener {
     void onPostsChange(List<Post> alPost);
-
 }
