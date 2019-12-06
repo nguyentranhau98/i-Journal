@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class FirebaseHelper {
@@ -126,6 +127,22 @@ public class FirebaseHelper {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public List<Post> getStatList(String key) {
+        Query myPosts = mDatabase.child(key).orderByChild("time").limitToLast(10);
+        myPosts.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                fetchData(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        return alPost;
     }
 
     public interface OnGetDataListener {
