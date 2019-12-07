@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
     FirebaseHelper firebaseHelper;
 
     ListView lv_post;
-    static ArrayList<Post> alPost = new ArrayList<>();
+    static List<Post> alPost = new ArrayList<>();
     static PostAdapter adapter;
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
@@ -93,15 +93,13 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
         lv_post = entryFragment.getLv_post();
         setupFirebase();
         registerForContextMenu(lv_post);
-        alPost = firebaseHelper.readPost(currentFirebaseUser.getUid());
         lv_post.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 final Post post = (Post)alPost.get(i);
-                Log.d("TITLE", "onItemClick: " + post.getTitle());
-                Intent intent = new Intent(MainActivity.this, UpdatePostActivity.class);
-                intent.putExtra("UPDATEPOST",post);
-                startActivityForResult(intent, UPDATE_POST_REQUEST);
+                Intent intent = new Intent(MainActivity.this, DetailPostActivity.class);
+                intent.putExtra("OBJPOST",post);
+                startActivity(intent);
             }
         });
     }
@@ -168,9 +166,10 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
             Fragment fragment;
             switch (menuItem.getItemId()) {
                 case R.id.entry:
-                    fragment = new EntryFragment();
-                    loadFragment(fragment);
-                    firebaseHelper.readPost(currentFirebaseUser.getUid());
+                    Log.d("DEBUG", "onNavigationItemSelected: " + "Loaded");
+                    loadFragment(entryFragment);
+                    lv_post.setAdapter(adapter);
+
                     return true;
                 case R.id.stats:
                     fragment = new StatsFragment(currentFirebaseUser,firebaseHelper);
@@ -190,7 +189,6 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
 
     private void setupFirebase() {
         FirebaseApp.initializeApp(this);
-        //mDatabase = FirebaseDatabase.getInstance().getReference();
         firebaseHelper = new FirebaseHelper(FirebaseDatabase.getInstance().getReference(), this);
         currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentFirebaseUser != null) {
@@ -223,9 +221,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
     }
 
     private void signOut() {
-        // Firebase sign out
         mAuth.signOut();
-        // Google sign out
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
                 new OnCompleteListener<Void>() {
                     @Override
@@ -243,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
         lv_post.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         System.out.println("SIZEEEEE 1 " + alPost.size());
+        this.alPost = alPost;
     }
 
     @Override

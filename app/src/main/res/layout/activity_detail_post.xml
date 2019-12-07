@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DetailPostActivity"
+    android:layout_margin="5dp">
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Title"
+        android:textSize="30dp"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:layout_alignParentStart="true"/>
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_title"
+        android:text="Time"
+        android:textSize="20dp"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"/>
+        <TextView
+            android:id="@+id/tv_mood"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mood "
+            android:textSize="20dp"
+            android:layout_below="@+id/tv_time"
+            android:layout_marginTop="15dp"
+            android:textColor="@color/common_google_signin_btn_text_dark_focused"/>
+        <ImageView
+            android:id="@+id/img_mood"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_below="@+id/tv_time"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/weary"/>
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/img_mood"
+        android:text="Content"
+        android:textSize="20dp"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"/>
+
+
+</RelativeLayout>

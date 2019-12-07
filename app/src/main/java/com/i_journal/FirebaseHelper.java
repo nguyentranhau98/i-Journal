@@ -34,6 +34,7 @@ public class FirebaseHelper {
 
     public ArrayList<Post> readPost(String key) {
         Query myPosts = mDatabase.child(key).orderByChild("time");
+
         myPosts.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
