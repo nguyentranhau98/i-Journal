@@ -1,19 +1,12 @@
 package com.i_journal;
 
 import android.content.Context;
-import android.media.Image;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.core.content.ContextCompat;
-
-import com.google.android.material.card.MaterialCardView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -56,7 +49,6 @@ public class PostAdapter extends BaseAdapter {
         TextView tv_post_time = view.findViewById(R.id.tv_post_time);
         TextView tv_post_title = view.findViewById(R.id.tv_post_title);
         TextView tv_post_content = view.findViewById(R.id.tv_post_content);
-        MaterialCardView item_layout = view.findViewById(R.id.item_layout);
 
         final Post post = list.get(position);
 
@@ -68,7 +60,6 @@ public class PostAdapter extends BaseAdapter {
         String date1 = sfd2.format(new Date(post.getTime()));
         String date2 = sfd2.format(new Date());
 
-        int id;
         setExpression(post.getRating(), mood);
         try {
             Date pastDay = sfd2.parse(date1);
@@ -84,8 +75,6 @@ public class PostAdapter extends BaseAdapter {
         }
         tv_post_content.setText(post.getContent());
         tv_post_title.setText(post.getTitle());
-
-        Toast.makeText(context,"Call getView from Post Adapter "+position,Toast.LENGTH_SHORT).show();
         return view;
     }
     void setExpression(int id, ImageView mood) {

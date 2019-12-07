@@ -41,30 +41,26 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements FirebaseHelperListener,View.OnClickListener {
-
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,FirebaseHelperListener {
     static final int ADD_POST_REQUEST = 1;
-    static final int UPDATE_POST_REQUEST = 2;
-    private DatabaseReference mDatabase;
-    FirebaseUser currentFirebaseUser;
-    FirebaseHelper firebaseHelper;
 
     ListView lv_post;
     static List<Post> alPost = new ArrayList<>();
-    static PostAdapter adapter;
+
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private EntryFragment entryFragment;
+    private DatabaseReference mDatabase;
+    FirebaseUser currentFirebaseUser;
+    FirebaseHelper firebaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        entryFragment = new EntryFragment();
-        loadFragment(entryFragment);
+
         BottomNavigationView navigation = findViewById(R.id.nav_bar);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -81,64 +77,22 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mAuth = FirebaseAuth.getInstance();
-
 //        setupItemEvent();
-
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        lv_post = entryFragment.getLv_post();
         setupFirebase();
-        registerForContextMenu(lv_post);
-        lv_post.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final Post post = (Post)alPost.get(i);
-                Intent intent = new Intent(MainActivity.this, DetailPostActivity.class);
-                intent.putExtra("OBJPOST",post);
-                startActivity(intent);
-            }
-        });
+        entryFragment = new EntryFragment(firebaseHelper, currentFirebaseUser);
+        loadFragment(entryFragment);
     }
-    @Override
-    public void onCreateContextMenu(final ContextMenu menu, final View v, final ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(0,0,0,"Update Post");
-        menu.add(0,1,1,"Delete Post");
 
-    }
     @Override
-    public boolean onContextItemSelected(MenuItem menuItem){
-        AdapterView.AdapterContextMenuInfo info=(AdapterView.AdapterContextMenuInfo)menuItem.getMenuInfo();
-        final Post selectedPost=(Post) this.lv_post.getItemAtPosition(info.position);
-        switch (menuItem.getItemId()) {
-            case 0:
-                Intent intent = new Intent(getBaseContext(), UpdatePostActivity.class);
-                intent.putExtra("UPDATEPOST", selectedPost);
-                startActivityForResult(intent, UPDATE_POST_REQUEST);
-                break;
-            case 1:{
-                new AlertDialog.Builder(this)
-                        .setMessage("Do you want to delete this contact")
-                        .setCancelable(false)
-                        .setNegativeButton("No",null)
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                firebaseHelper.deletePost(currentFirebaseUser.getUid(),selectedPost.getKey());
-                            }
-                        }).show();
-                break;
-            }
-
-            default:
-                break;
-        }
-        return true;
+    protected void onResume() {
+        super.onResume();
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
@@ -150,13 +104,6 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
                 firebaseHelper.writePost(currentFirebaseUser.getUid(), newPost);
             }
         }
-        if (requestCode == UPDATE_POST_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                Bundle bundle = intent.getExtras();
-                Post newPost = (Post) bundle.getSerializable("NEWPOST");
-                firebaseHelper.updatePost(currentFirebaseUser.getUid(), newPost);
-            }
-        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -166,10 +113,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
             Fragment fragment;
             switch (menuItem.getItemId()) {
                 case R.id.entry:
-                    Log.d("DEBUG", "onNavigationItemSelected: " + "Loaded");
                     loadFragment(entryFragment);
-                    lv_post.setAdapter(adapter);
-
                     return true;
                 case R.id.stats:
                     fragment = new StatsFragment(currentFirebaseUser,firebaseHelper);
@@ -187,18 +131,7 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
         }
     };
 
-    private void setupFirebase() {
-        FirebaseApp.initializeApp(this);
-        firebaseHelper = new FirebaseHelper(FirebaseDatabase.getInstance().getReference(), this);
-        currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentFirebaseUser != null) {
-            String email = currentFirebaseUser.getEmail();
-            System.out.println("EMAIL:  " + email);
-            firebaseHelper.readPost(currentFirebaseUser.getUid());
-        } else {
-            System.out.println("Do not get current Firebase user");
-        }
-    }
+
 
     public void setupItemEvent(){
         lv_post.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -234,16 +167,25 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
     }
 
     @Override
-    public void onPostsChange(List<Post> alPost) {
-        adapter = new PostAdapter(getBaseContext(), R.layout.post_list_item, alPost);
-        lv_post.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-        System.out.println("SIZEEEEE 1 " + alPost.size());
-        this.alPost = alPost;
+    public void onClick(View view) {
+
+    }
+
+    private void setupFirebase() {
+        FirebaseApp.initializeApp(getBaseContext());
+        firebaseHelper = new FirebaseHelper(FirebaseDatabase.getInstance().getReference(), this);
+        currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentFirebaseUser != null) {
+            String email = currentFirebaseUser.getEmail();
+            System.out.println("EMAIL:  " + email);
+            firebaseHelper.readPost(currentFirebaseUser.getUid());
+        } else {
+            System.out.println("Do not get current Firebase user");
+        }
     }
 
     @Override
-    public void onClick(View view) {
+    public void onPostsChange(List<Post> alPost) {
 
     }
 }
