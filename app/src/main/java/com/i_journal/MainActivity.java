@@ -93,6 +93,17 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
         lv_post = entryFragment.getLv_post();
         setupFirebase();
         registerForContextMenu(lv_post);
+        alPost = firebaseHelper.readPost(currentFirebaseUser.getUid());
+        lv_post.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final Post post = (Post)alPost.get(i);
+                Log.d("TITLE", "onItemClick: " + post.getTitle());
+                Intent intent = new Intent(MainActivity.this, UpdatePostActivity.class);
+                intent.putExtra("UPDATEPOST",post);
+                startActivityForResult(intent, UPDATE_POST_REQUEST);
+            }
+        });
     }
     @Override
     public void onCreateContextMenu(final ContextMenu menu, final View v, final ContextMenu.ContextMenuInfo menuInfo) {
@@ -159,10 +170,10 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
                 case R.id.entry:
                     fragment = new EntryFragment();
                     loadFragment(fragment);
-                    onPostsChange(alPost);
+                    firebaseHelper.readPost(currentFirebaseUser.getUid());
                     return true;
                 case R.id.stats:
-                    fragment = new StatsFragment();
+                    fragment = new StatsFragment(currentFirebaseUser,firebaseHelper);
                     loadFragment(fragment);
                     return true;
                 case R.id.calendar:
@@ -216,14 +227,14 @@ public class MainActivity extends AppCompatActivity implements FirebaseHelperLis
         mAuth.signOut();
         // Google sign out
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
-            new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    Intent intent = new Intent(getBaseContext(), LoginActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            });
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
     }
 
     @Override
