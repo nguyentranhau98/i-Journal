@@ -13,9 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import java.util.List;
+
 public class EntryFragment extends Fragment {
     ListView lv_post;
-
+    PostAdapter adapter;
+    List<Post> alPost;
     public ListView getLv_post() {
         return lv_post;
     }
@@ -25,7 +28,7 @@ public class EntryFragment extends Fragment {
     }
 
     public EntryFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -38,6 +41,7 @@ public class EntryFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_entry, container, false);
         setLv_post((ListView) view.findViewById(R.id.lv_post));
+
         return view;
     }
 
