@@ -124,5 +124,4 @@ public class LoginActivity extends AppCompatActivity implements
         if (i == R.id.btn_signin) {
             signIn();
         }
-    }
 }
