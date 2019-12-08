@@ -77,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mAuth = FirebaseAuth.getInstance();
-//        setupItemEvent();
     }
 
     @Override
@@ -130,20 +129,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return false;
         }
     };
-
-
-
-    public void setupItemEvent(){
-        lv_post.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final Post post = (Post)alPost.get(i);
-//                Intent intent = new Intent(WallActivity.this, HomeActivity.class);
-//                intent.putExtra("KEY",post.getKey());
-//                startActivity(intent);
-            }
-        });
-    }
 
     private void loadFragment(Fragment fragment) {
         // load fragment

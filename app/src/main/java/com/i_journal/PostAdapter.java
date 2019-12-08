@@ -25,7 +25,7 @@ public class PostAdapter extends BaseAdapter {
         this.list = list;
     }
 
-        @Override
+    @Override
     public int getCount() {
         return list.size();
     }
@@ -65,33 +65,38 @@ public class PostAdapter extends BaseAdapter {
             Date pastDay = sfd2.parse(date1);
             Date currentDay = sfd2.parse(date2);
             long diff = currentDay.getTime() - pastDay.getTime();
-            if (TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) == 1){
+            if (TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) == 1) {
                 tv_post_day.setText("1 day ago");
-            }
-            else
-                tv_post_day.setText(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS)+" days ago");
+            } else
+                tv_post_day.setText(TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS) + " hours ago");
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        tv_post_content.setText(post.getContent());
+        if (post.getContent().length() > 20) {
+            tv_post_content.setText(post.getContent().substring(0, 19));
+        } else {
+            tv_post_content.setText(post.getContent());
+        }
+
         tv_post_title.setText(post.getTitle());
         return view;
     }
+
     void setExpression(int id, ImageView mood) {
         switch (id) {
-            case 1 :
+            case 1:
                 mood.setImageResource(R.drawable.weary);
                 break;
-            case 2 :
+            case 2:
                 mood.setImageResource(R.drawable.disappointed);
                 break;
-            case 3 :
+            case 3:
                 mood.setImageResource(R.drawable.expressionless);
                 break;
-            case 4 :
+            case 4:
                 mood.setImageResource(R.drawable.slightlysmiling);
                 break;
-            case 5 :
+            case 5:
                 mood.setImageResource(R.drawable.smiling);
                 break;
         }

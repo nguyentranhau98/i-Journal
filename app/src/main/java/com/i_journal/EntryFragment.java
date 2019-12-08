@@ -124,7 +124,7 @@ public class EntryFragment extends Fragment implements FirebaseHelperListener{
                 break;
             case 1:{
                 new AlertDialog.Builder(getContext())
-                        .setMessage("Do you want to delete this contact")
+                        .setMessage("Do you want to delete this entry?")
                         .setCancelable(false)
                         .setNegativeButton("No",null)
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
