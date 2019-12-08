@@ -87,8 +87,6 @@ public class AddPostActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             }
             case R.id.btn_cancel: {
-                Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                startActivity(intent);
                 finish();
                 break;
             }

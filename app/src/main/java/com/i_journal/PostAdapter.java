@@ -1,19 +1,12 @@
 package com.i_journal;
 
 import android.content.Context;
-import android.media.Image;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.core.content.ContextCompat;
-
-import com.google.android.material.card.MaterialCardView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,7 +25,7 @@ public class PostAdapter extends BaseAdapter {
         this.list = list;
     }
 
-        @Override
+    @Override
     public int getCount() {
         return list.size();
     }
@@ -56,7 +49,6 @@ public class PostAdapter extends BaseAdapter {
         TextView tv_post_time = view.findViewById(R.id.tv_post_time);
         TextView tv_post_title = view.findViewById(R.id.tv_post_title);
         TextView tv_post_content = view.findViewById(R.id.tv_post_content);
-        MaterialCardView item_layout = view.findViewById(R.id.item_layout);
 
         final Post post = list.get(position);
 
@@ -68,41 +60,43 @@ public class PostAdapter extends BaseAdapter {
         String date1 = sfd2.format(new Date(post.getTime()));
         String date2 = sfd2.format(new Date());
 
-        int id;
         setExpression(post.getRating(), mood);
         try {
             Date pastDay = sfd2.parse(date1);
             Date currentDay = sfd2.parse(date2);
             long diff = currentDay.getTime() - pastDay.getTime();
-            if (TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) == 1){
+            if (TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) == 1) {
                 tv_post_day.setText("1 day ago");
-            }
-            else
-                tv_post_day.setText(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS)+" days ago");
+            } else
+                tv_post_day.setText(TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS) + " hours ago");
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        tv_post_content.setText(post.getContent());
-        tv_post_title.setText(post.getTitle());
+        if (post.getContent().length() > 20) {
+            tv_post_content.setText(post.getContent().substring(0, 19));
+        } else {
+            tv_post_content.setText(post.getContent());
+        }
 
-        Toast.makeText(context,"Call getView from Post Adapter "+position,Toast.LENGTH_SHORT).show();
+        tv_post_title.setText(post.getTitle());
         return view;
     }
+
     void setExpression(int id, ImageView mood) {
         switch (id) {
-            case 1 :
+            case 1:
                 mood.setImageResource(R.drawable.weary);
                 break;
-            case 2 :
+            case 2:
                 mood.setImageResource(R.drawable.disappointed);
                 break;
-            case 3 :
+            case 3:
                 mood.setImageResource(R.drawable.expressionless);
                 break;
-            case 4 :
+            case 4:
                 mood.setImageResource(R.drawable.slightlysmiling);
                 break;
-            case 5 :
+            case 5:
                 mood.setImageResource(R.drawable.smiling);
                 break;
         }

@@ -22,42 +22,46 @@
 
     <LinearLayout
         android:id="@+id/llParent"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="30dp">
+        android:layout_marginBottom="30dp"
+        android:weightSum="5">
         <ImageView
             android:id="@+id/img_weary"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_margin="4dp"
-            android:src="@drawable/weary"/>
-        <!--            android:padding="5dp"-->
-        <!--            android:background="@drawable/background_circle"-->
+            android:src="@drawable/weary"
+            android:layout_weight="1"/>
         <ImageView
             android:id="@+id/img_disappointed"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_margin="4dp"
-            android:src="@drawable/disappointed"/>
+            android:src="@drawable/disappointed"
+            android:layout_weight="1"/>
         <ImageView
             android:id="@+id/img_expressionless"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_margin="4dp"
-            android:src="@drawable/expressionless"/>
+            android:src="@drawable/expressionless"
+            android:layout_weight="1"/>
         <ImageView
             android:id="@+id/img_slightlysmiling"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_margin="4dp"
-            android:src="@drawable/slightlysmiling"/>
+            android:src="@drawable/slightlysmiling"
+            android:layout_weight="1"/>
         <ImageView
             android:id="@+id/img_smiling"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_margin="5dp"
-            android:src="@drawable/smiling"/>
+            android:src="@drawable/smiling"
+            android:layout_weight="1"/>
     </LinearLayout>
 
     <EditText
